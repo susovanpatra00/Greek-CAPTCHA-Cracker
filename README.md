@@ -1,48 +1,57 @@
 # Greek-CAPTCHA-Cracker
 This is a system to crack Greek Captcha - CS771 (IITK)
 
+
 ## Project Overview
 
-This project involves the extraction and recognition of characters from CAPTCHA images. The CAPTCHAs consist of three uppercase Greek characters, each image being 150 × 500 pixels. The characters in the images are rotated at angles of 0°, ±10°, ±20°, or ±30°, and there are obfuscating lines of varying shades in the background.
+This project involves extracting and recognizing characters from CAPTCHA images. Each CAPTCHA consists of three uppercase Greek characters within 150 × 500 pixel images, which may be rotated at angles of 0°, ±10°, ±20°, or ±30°. The images also feature obfuscating lines that complicate the extraction process.
 
 ## Methodology
 
 ### 1. Preprocessing of Image (Data Cleaning)
 
-To accurately identify and extract characters from the CAPTCHA images, several preprocessing steps were implemented to clean the images:
+To ensure effective character recognition, several preprocessing steps were applied to clean the CAPTCHA images:
 
 #### a. Background Removal
 
 1. **Image Conversion**: Convert the image from BGR to HSV color space.
-2. **Foreground Extraction**: Extract the 'S' (Saturation) channel from the HSV image and remove values less than half of the maximum saturation.
-3. **Create Mask**: Use the foreground mask to isolate the main content of the image.
-4. **Invert Mask**: Invert the foreground mask to get the background.
-5. **Combine Foreground and Background**: Convert the background back to BGR color space and combine it with the original image to achieve a white background with clear characters.
+2. **Foreground Extraction**: Extract the 'S' (Saturation) channel and remove values below half of the maximum saturation.
+3. **Create Mask**: Use the mask to isolate the main content of the image.
+4. **Invert Mask**: Invert the mask to isolate the background.
+5. **Combine Foreground and Background**: Merge the background with the original image to achieve a white background.
 
 #### b. Stray Line Removal
 
-1. **Refinement of Mask**: Adjust the mask to effectively remove stray lines without altering the characters.
-2. **Final Combination**: Combine the refined foreground mask with the original image to produce the final output, which is free from stray lines and obfuscating elements.
+1. **Refinement of Mask**: Adjust the mask to remove stray lines while preserving the characters.
+2. **Final Combination**: Merge the refined mask with the original image to produce a clean result.
 
-**References**: The above functions for background removal and stray line filtering were implemented based on methods detailed in the [FreedomVC blog](https://www.freedomvc.com/index.php/2022/01/17/basic-background-remover-with-opencv/).
+**References**: Background removal and stray line filtering techniques were adapted from [FreedomVC](https://www.freedomvc.com/index.php/2022/01/17/basic-background-remover-with-opencv/).
 
-## Algorithms Used
+### 2. Character Recognition Models
 
-1. **Image Segmentation**: To isolate and process individual characters.
-2. **Character Recognition**: For identifying characters after preprocessing.
+Two different models were utilized for character recognition:
 
-## Hyperparameter Search Procedures
+#### a. Convolutional Neural Network (CNN)
 
-- **Foreground Mask Threshold**: Adjusted the threshold for the saturation channel to achieve optimal background removal.
-- **Mask Refinement**: Tuned the parameters for mask refinement to effectively eliminate stray lines.
+1. **Model Architecture**: A CNN model was used for its capability to extract and recognize features from images.
+2. **Training Procedure**:
+   - **Dataset**: Utilized the set of 2000 CAPTCHA images with three characters each.
+   - **Augmentation**: Applied data augmentation techniques like rotation and scaling to improve model performance.
+   - **Hyperparameter Tuning**: Optimized learning rate, batch size, and number of epochs through grid search or random search.
+   - **Validation**: Used a validation set to tune hyperparameters and prevent overfitting.
 
-## Validation Procedure
+3. **Validation**: Performance was assessed using accuracy, precision, recall, and F1-score on a test set.
 
-- **Visual Inspection**: Manually inspected a subset of processed images to ensure the accuracy of background removal and line filtering.
-- **Performance Metrics**: Evaluated the effectiveness of preprocessing by assessing the clarity of extracted characters and their suitability for recognition algorithms.
+#### b. Support Vector Machine (SVM)
+
+1. **Feature Extraction**: Features were extracted from preprocessed images and fed into the SVM model.
+2. **Training Procedure**:
+   - **Kernel Selection**: Used kernels like linear, polynomial, or RBF to find the best fit.
+   - **Hyperparameter Tuning**: Optimized parameters such as C (regularization parameter) and gamma (kernel coefficient).
+   - **Validation**: Used cross-validation techniques to tune hyperparameters and evaluate model performance.
+
+3. **Validation**: Performance was evaluated on a test set using metrics like accuracy, precision, recall, and F1-score.
 
 ## Conclusion
 
-The preprocessing techniques applied significantly improve the accuracy of character extraction from CAPTCHA images by effectively removing background noise and obfuscating lines. These cleaned images are then ready for further character recognition tasks.
-
-
+The preprocessing steps were crucial in preparing the CAPTCHA images for accurate character recognition. Both CNN and SVM models were employed to ensure robust character extraction. The CNN model leveraged its feature extraction capabilities, while the SVM model provided a different approach to classification, resulting in a comprehensive solution for CAPTCHA character recognition. CNN gave exceptional result of 100% accuracy but the model size was 136 MB so I used SVM later on which also gave 100% accuracy but the model size was 3.69 MB which is exceptionally lesser than the CNN model size.
